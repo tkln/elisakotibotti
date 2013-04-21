@@ -62,8 +62,8 @@ def client_thread(client_socket, dummy):
 		#		print("incoming data: 0x" + recv.encode('hex'))
 		motor_id = ord(recv)>>4
 		motor_speed = 7 - (ord(recv) & 0x0f)
-		#print("setting motor " + str(motor_id) + " speed to " + 
-		#	str(motor_speed))
+		print("setting motor " + str(motor_id) + " speed to " + 
+			str(motor_speed))
 		try:
 			motors[motor_id].speed = motor_speed;
 		except IndexError:
