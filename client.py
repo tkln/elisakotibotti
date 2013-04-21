@@ -85,13 +85,13 @@ def send_joystick():
 	#if coord[0] > 10.0 or coord[0] < 0.1:
 	#	coord[0] = 0
 	print(coord)
-	if abs(coord[0]) < 0.01:
-		coord[0] = 0.0
-	if abs(coord[1]) < 0.01:
-		coord[1] = 0.0
 	print(coord)
 	motor_0_val = int(16 * float(coord[0]) / screen.get_size()[0])
 	motor_1_val = int(16 * float(coord[1]) / screen.get_size()[1])
+	if abs(coord[0]) < 0.01:
+		motor_0_val = 7;
+	if abs(coord[1]) < 0.01:
+		motor_1_val = 7
 	set_motors(motor_0_val, motor_1_val)
 	pygame.draw.line(screen, (255, 0, 0), 
 	screen_center, (((joystick.get_axis(JOYSTICK_AXIS_A)) + 1.0 ) * screen_center[0],
