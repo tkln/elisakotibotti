@@ -11,9 +11,10 @@ SERVER_PORT = 1336
 SCREEN_WIDTH = 200
 SCREEN_HEIGHT = 200
 
-#used for mouse scasing and mirroring
+#used for mouse scaling and mirroring
 MXM = -1
 MYM = 1
+MCAL = [-1, 1]
 
 #bar graph scalers
 B0M = 1
@@ -44,11 +45,14 @@ try:
 except socket.error:
 	print("Unable to connect to the server ")
 
+def tuple_mul(a, b):
+	return (a[0] * b[0], a[1] * b[1])
+
 def rotate_coord(in_coord):
 	ret = [0, 0]
 	coord = [0, 0]
-	coord[0] = MXM * in_coord[0] - MXM * screen.get_size()[0] / 2
-	coord[1] = MYM * in_coord[1] - MYM * screen.get_size()[1] / 2
+	coord[0] = in_coord[0] - MCAL[0] * screen.get_size()[0] / 2
+	coord[1] = in_coord[1] - MCAL[1] * screen.get_size()[1] / 2
 	ret[0] = coord[0] * cos(pi * 5 / 4) - coord[1] * sin(pi * 5 / 4)
 	ret[1] = coord[1] * cos(pi  * 5 / 4) + coord[0] * sin(pi * 5 / 4)
 	#print("orig coord: " + int(in_coord) + " to : " + int(ret))
@@ -66,7 +70,7 @@ def draw_motor_bars(m0, m1):
 
 def set_motors(m0, m1):
 	screen.fill((0xff, 0xff, 0xff))
-	#print("m0: " + str(m0) + " m1: " + str(m1))
+	print("m0: " + str(m0) + " m1: " + str(m1))
 	try:	
 		s.send(chr(0x0f & int(m0)))
 		s.send(chr((0x0f & int(m1)) | 0x10))
@@ -77,7 +81,7 @@ def set_motors(m0, m1):
 def send_mouse():
 	#print(pygame.mouse.get_pos())
 	if not tankdrive:
-		coord = rotate_coord(pygame.mouse.get_pos())
+		coord = rotate_coord(tuple_mul(pygame.mouse.get_pos(), MCAL))
 	else:
 		coord = [pygame.mouse.get_pos()[0] - screen.get_size()[0] / 2, 
 			pygame.mouse.get_pos()[1] - screen.get_size()[1] / 2]
@@ -87,8 +91,8 @@ def send_mouse():
 
 def send_joystick():
 	if not tankdrive:
-		coord = rotate_coord((((joystick.get_axis(JOYSTICK_AXIS_A)) + 1.0 ) * screen_center[0],
-                         ((joystick.get_axis(JOYSTICK_AXIS_B)) + 1.0 ) * screen_center[1]))
+		coord = rotate_coord(tuple_mul(MCAL, (((joystick.get_axis(JOYSTICK_AXIS_A)) + 1.0 ) * screen_center[0],
+                         ((joystick.get_axis(JOYSTICK_AXIS_B)) + 1.0 ) * screen_center[1])))
 
 	else:
 		coord = [joystick.get_axis(JOYSTICK_AXIS_A) + 1.0, 
