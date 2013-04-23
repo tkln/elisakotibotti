@@ -20,7 +20,7 @@ class Motor:
 		self.hb_b_line_file.write(str(state))	
 		return
 	def __pwm_thread_func(self, arg1, arg2):
-		print("motor pwm thread function started")
+		print("Motor pwm thread function started")
 		while (1):
 			time.sleep((8 - abs(self.speed)) / self.PWM_RATE)
 			#turn motor on
@@ -50,7 +50,7 @@ class Motor:
 		self.set_b_line(0)
 		self.__tid = thread.start_new_thread(self.__pwm_thread_func, 
 							(None, None))
-		print("motor has been set up with: " + a_line + ", " + b_line)
+		print("Motor has been set up with: " + a_line + ", " + b_line)
 		return
 
 motors = []
@@ -62,35 +62,35 @@ def client_thread(client_socket, dummy):
 		#		print("incoming data: 0x" + recv.encode('hex'))
 		motor_id = ord(recv)>>4
 		motor_speed = 7 - (ord(recv) & 0x0f)
-		print("setting motor " + str(motor_id) + " speed to " + 
+		print("Setting motor " + str(motor_id) + " speed to " + 
 			str(motor_speed))
 		try:
 			motors[motor_id].speed = motor_speed;
 		except IndexError:
-			print("bad motor index!")
+			print("Bad motor index!")
 	return
 
 def signal_handler(signal, frame):
-	print("exiting")
+	print("Exiting")
 	for motor in motors:
 		motor.speed = 0
 	server_socket.close()	
 	sys.exit()
 
-print("hello!")		
+print("Hello!")		
 
 
-print("setting up motors")
+print("Setting up motors")
 motors.append(Motor("soc:red:internet", "soc:red:power"))
 motors.append(Motor("soc:blue:unlabeled", "soc:blue:usb3"))
 
-print("creating socket")
+print("Creating socket")
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.bind(('', 1337))
 server_socket.listen(5)
 
-print("all systems go!")
+print("All systems go!")
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -98,10 +98,10 @@ client_tids = []
 
 while (1):
 	(client_socket, address) = server_socket.accept()
-	print("new client connection from " + str(address[0]) + "!")
+	print("New client connection from " + str(address[0]) + "!")
 	client_tids.append(thread.start_new_thread(client_thread, 
 			(client_socket, None)))
 	
 thread.exit()
-print("bye!")
+print("Bye!")
 

@@ -4,8 +4,9 @@ import pygame
 import time
 from math import sin, cos, pi
 
-SERVER_IP = '192.168.100.1'
-SERVER_PORT = 1337
+#SERVER_IP = '192.168.100.1'
+SERVER_IP = '192.168.1.100'
+SERVER_PORT = 1336
 
 SCREEN_WIDTH = 200
 SCREEN_HEIGHT = 200
@@ -28,13 +29,20 @@ pygame.init()
 pygame.joystick.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 screen_center = [screen.get_size()[0] / 2, screen.get_size()[1] / 2]
-joystick = pygame.joystick.Joystick(JOYSTICK_ID)
-joystick.init()
 
-print("connecting to server...")
+try:
+	joystick = pygame.joystick.Joystick(JOYSTICK_ID)
+	joystick.init()
+except pygame.error:
+	print("No joystick found.")
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((SERVER_IP, SERVER_PORT))
+print("Connecting to the server: " + SERVER_IP + ":" + str(SERVER_PORT))
+
+try:
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.connect((SERVER_IP, SERVER_PORT))
+except socket.error:
+	print("Unable to connect to the server ")
 
 def rotate_coord(in_coord):
 	ret = [0, 0]
@@ -59,8 +67,11 @@ def draw_motor_bars(m0, m1):
 def set_motors(m0, m1):
 	screen.fill((0xff, 0xff, 0xff))
 	#print("m0: " + str(m0) + " m1: " + str(m1))
-	s.send(chr(0x0f & int(m0)))
-	s.send(chr((0x0f & int(m1)) | 0x10))
+	try:	
+		s.send(chr(0x0f & int(m0)))
+		s.send(chr((0x0f & int(m1)) | 0x10))
+	except socket.error:
+		print("Failed to transmit motor commands!")
 	draw_motor_bars(m0, m1)
 
 def send_mouse():
