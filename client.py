@@ -26,6 +26,8 @@ JOYSTICK_AXIS_B = 4
 JOYSTICK_AXIS_TA = 1
 JOYSTICK_AXIS_TB = 4
 
+COORD_ANGL = pi * 5 / 4 
+
 pygame.init()
 pygame.joystick.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -48,13 +50,22 @@ except socket.error:
 def tuple_mul(a, b):
 	return (a[0] * b[0], a[1] * b[1])
 
-def rotate_coord(in_coord):
+def rotate_coord_u(coord):
+	ret = [0, 0]
+	ret[0] = coord[0] * cos(COORD_ANGL) - coord[1] * sin(COORD_ANGL)
+	ret[1] = coord[1] * cos(COORD_ANGL) + coord[0] * sin(COORD_ANGL)
+	#print("orig coord: " + int(in_coord) + " to : " + int(ret))
+	return ret
+
+def rotate_mouse_coord(in_coord):
 	ret = [0, 0]
 	coord = [0, 0]
+	#offsets the origo of mouse to the center of the screen	
+	#these should go to mouse handling
 	coord[0] = in_coord[0] - MCAL[0] * screen.get_size()[0] / 2
 	coord[1] = in_coord[1] - MCAL[1] * screen.get_size()[1] / 2
-	ret[0] = coord[0] * cos(pi * 5 / 4) - coord[1] * sin(pi * 5 / 4)
-	ret[1] = coord[1] * cos(pi  * 5 / 4) + coord[0] * sin(pi * 5 / 4)
+	#the actual coordinate offsetting
+	ret = rotate_coord_u(coord)
 	#print("orig coord: " + int(in_coord) + " to : " + int(ret))
 	return ret
 
@@ -81,7 +92,7 @@ def set_motors(m0, m1):
 def send_mouse():
 	#print(pygame.mouse.get_pos())
 	if not tankdrive:
-		coord = rotate_coord(tuple_mul(pygame.mouse.get_pos(), MCAL))
+		coord = rotate_mouse_coord(tuple_mul(pygame.mouse.get_pos(), MCAL))
 	else:
 		coord = [pygame.mouse.get_pos()[0] - screen.get_size()[0] / 2, 
 			pygame.mouse.get_pos()[1] - screen.get_size()[1] / 2]
@@ -91,7 +102,7 @@ def send_mouse():
 
 def send_joystick():
 	if not tankdrive:
-		coord = rotate_coord(tuple_mul(MCAL, (((joystick.get_axis(JOYSTICK_AXIS_A)) + 1.0 ) * screen_center[0],
+		coord = rotate_mouse_coord(tuple_mul(MCAL, (((joystick.get_axis(JOYSTICK_AXIS_A)) + 1.0 ) * screen_center[0],
                          ((joystick.get_axis(JOYSTICK_AXIS_B)) + 1.0 ) * screen_center[1])))
 
 	else:
