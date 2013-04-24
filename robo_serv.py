@@ -6,9 +6,11 @@ import thread
 import signal
 import sys
 
+SERVER_PORT = 1337
+PWM_RATE = 100.0
+
 class Motor:
 	speed = 0
-	PWM_RATE = 100.0
 	LINE_BASE_PATH = '/sys/class/leds/'
 	
 	def set_a_line(self, state):
@@ -22,7 +24,7 @@ class Motor:
 	def __pwm_thread_func(self, arg1, arg2):
 		print("Motor pwm thread function started")
 		while (1):
-			time.sleep((8 - abs(self.speed)) / self.PWM_RATE)
+			time.sleep((8 - abs(self.speed)) / PWM_RATE)
 			#turn motor on
 			if self.speed < 0:
 				self.set_a_line(1)
@@ -33,7 +35,7 @@ class Motor:
 			else:
 				self.set_a_line(0)
 				self.set_b_line(1)
-			time.sleep(abs(self.speed) / self.PWM_RATE)
+			time.sleep(abs(self.speed) / PWM_RATE)
 			#turn motor off
 			self.set_a_line(0)
 			self.set_b_line(0)
@@ -87,7 +89,7 @@ motors.append(Motor("soc:blue:unlabeled", "soc:blue:usb3"))
 print("Creating socket")
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(('', 1337))
+server_socket.bind(('', SERVER_PORT))
 server_socket.listen(5)
 
 print("All systems go!")

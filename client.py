@@ -6,7 +6,7 @@ from math import sin, cos, pi
 
 #SERVER_IP = '192.168.100.1'
 SERVER_IP = '192.168.1.100'
-SERVER_PORT = 1336
+SERVER_PORT = 1337
 
 SCREEN_WIDTH = 200
 SCREEN_HEIGHT = 200
@@ -50,7 +50,7 @@ except socket.error:
 def tuple_mul(a, b):
 	return (a[0] * b[0], a[1] * b[1])
 
-def rotate_coord_u(coord):
+def rotate_coord(coord):
 	ret = [0, 0]
 	ret[0] = coord[0] * cos(COORD_ANGL) - coord[1] * sin(COORD_ANGL)
 	ret[1] = coord[1] * cos(COORD_ANGL) + coord[0] * sin(COORD_ANGL)
@@ -90,14 +90,13 @@ def set_motors(m0, m1):
 	draw_motor_bars(m0, m1)
 
 def send_mouse():
-	#print(pygame.mouse.get_pos())
+	coord = [pygame.mouse.get_pos()[0] - screen.get_size()[0] / 2, 
+		pygame.mouse.get_pos()[1] - screen.get_size()[1] / 2]
+
 	if not tankdrive:
-		coord = rotate_mouse_coord(tuple_mul(pygame.mouse.get_pos(), MCAL))
-	else:
-		coord = [pygame.mouse.get_pos()[0] - screen.get_size()[0] / 2, 
-			pygame.mouse.get_pos()[1] - screen.get_size()[1] / 2]
-	motor_0_val = (16 * float(coord[0])/screen.get_size()[0])
-	motor_1_val = (16 * float(coord[1])/screen.get_size()[1])
+		coord = rotate_coord(coord)
+	motor_0_val = (18 * float(coord[0])/screen.get_size()[0])
+	motor_1_val = (18 * float(coord[1])/screen.get_size()[1])
 	set_motors(motor_0_val, motor_1_val)
 
 def send_joystick():
@@ -124,18 +123,18 @@ def send_joystick():
                          ((joystick.get_axis(JOYSTICK_AXIS_B)) + 1.0 ) * screen_center[1]))
 
 
-def stop():
+def motors_stop():
 	set_motors(7, 7)
 
 tankdrive = False
 running = True
-stop()
+motors_stop()
 screen.fill((0xff, 0xff, 0xff))
 while running:
 	
 	event = pygame.event.poll()
 	if event.type == pygame.QUIT:
-		stop()
+		motors_stop()
 		running = False
 	elif event.type == pygame.MOUSEMOTION:
 		if pygame.mouse.get_pressed()[0]:
@@ -143,7 +142,7 @@ while running:
 			pygame.draw.line(screen, (255, 0, 0), 
 				screen_center, pygame.mouse.get_pos())
 	elif event.type == pygame.MOUSEBUTTONUP:
-		stop()
+		motors_stop()
 	elif event.type == pygame.JOYAXISMOTION:
 		send_joystick()
 
