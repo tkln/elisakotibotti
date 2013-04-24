@@ -20,11 +20,11 @@ MCAL = [-1, 1]
 B0M = 1
 B1M = -1
 
-JOYSTICK_ID = 0
-JOYSTICK_AXIS_A = 3
-JOYSTICK_AXIS_B = 4
-JOYSTICK_AXIS_TA = 1
-JOYSTICK_AXIS_TB = 4
+JOY_ID = 0
+JOY_AXIS_A = 3
+JOY_AXIS_B = 4
+JOY_AXIS_TA = 1
+JOY_AXIS_TB = 4
 
 COORD_ANGL = pi * 5 / 4 
 
@@ -34,7 +34,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 screen_center = [screen.get_size()[0] / 2, screen.get_size()[1] / 2]
 
 try:
-	joystick = pygame.joystick.Joystick(JOYSTICK_ID)
+	joystick = pygame.joystick.Joystick(JOY_ID)
 	joystick.init()
 except pygame.error:
 	print("No joystick found.")
@@ -101,26 +101,19 @@ def send_mouse():
 
 def send_joystick():
 	if not tankdrive:
-		coord = rotate_mouse_coord(tuple_mul(MCAL, (((joystick.get_axis(JOYSTICK_AXIS_A)) + 1.0 ) * screen_center[0],
-                         ((joystick.get_axis(JOYSTICK_AXIS_B)) + 1.0 ) * screen_center[1])))
-
+		coord = rotate_coord((joystick.get_axis(JOY_AXIS_A), 
+				joystick.get_axis(JOY_AXIS_B)))
 	else:
-		coord = [joystick.get_axis(JOYSTICK_AXIS_A) + 1.0, 
-			joystick.get_axis(JOYSTICK_AXIS_B) + 1.0]
-	#if coord[0] > 10.0 or coord[0] < 0.1:
-	#	coord[0] = 0
+		coord = [joystick.get_axis(JOY_AXIS_A) + 1.0, 
+			joystick.get_axis(JOY_AXIS_B) + 1.0]
 	print(coord)
 	print(coord)
-	motor_0_val = int(16 * float(coord[0]) / screen.get_size()[0])
-	motor_1_val = int(16 * float(coord[1]) / screen.get_size()[1])
-	if abs(coord[0]) < 0.01:
-		motor_0_val = 7;
-	if abs(coord[1]) < 0.01:
-		motor_1_val = 7
+	motor_0_val = int(7 * float(coord[0]))
+	motor_1_val = int(7 * float(coord[1]))
 	set_motors(motor_0_val, motor_1_val)
 	pygame.draw.line(screen, (255, 0, 0), 
-	screen_center, (((joystick.get_axis(JOYSTICK_AXIS_A)) + 1.0 ) * screen_center[0],
-                         ((joystick.get_axis(JOYSTICK_AXIS_B)) + 1.0 ) * screen_center[1]))
+	screen_center, (((joystick.get_axis(JOY_AXIS_A)) + 1.0 ) * screen_center[0],
+                         ((joystick.get_axis(JOY_AXIS_B)) + 1.0 ) * screen_center[1]))
 
 
 def motors_stop():
