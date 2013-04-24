@@ -25,8 +25,12 @@ JOY_AXIS_A = 3
 JOY_AXIS_B = 4
 JOY_AXIS_TA = 1
 JOY_AXIS_TB = 4
+JCAL = [1, 1]
 
 COORD_ANGL = pi * 5 / 4 
+
+#motor scalers
+MSCALE = [7, 7]
 
 pygame.init()
 pygame.joystick.init()
@@ -57,19 +61,8 @@ def rotate_coord(coord):
 	#print("orig coord: " + int(in_coord) + " to : " + int(ret))
 	return ret
 
-def rotate_mouse_coord(in_coord):
-	ret = [0, 0]
-	coord = [0, 0]
-	#offsets the origo of mouse to the center of the screen	
-	#these should go to mouse handling
-	coord[0] = in_coord[0] - MCAL[0] * screen.get_size()[0] / 2
-	coord[1] = in_coord[1] - MCAL[1] * screen.get_size()[1] / 2
-	#the actual coordinate offsetting
-	ret = rotate_coord_u(coord)
-	#print("orig coord: " + int(in_coord) + " to : " + int(ret))
-	return ret
-
 def draw_motor_bars(m0, m1):
+	screen.fill((0xff, 0xff, 0xff))
 	if m0 != 7:
 		pygame.draw.rect(screen, (0, 255, 0), 
 		(0, screen_center[1], screen_center[0],
@@ -80,8 +73,7 @@ def draw_motor_bars(m0, m1):
 		(B1M * m1 / 7.0) * screen_center[1]))
 
 def set_motors(m0, m1):
-	screen.fill((0xff, 0xff, 0xff))
-	print("m0: " + str(m0) + " m1: " + str(m1))
+	print("m0: " + str(int(m0) & 0x0f) + " m1: " + str(int(m1) & 0x0f))
 	try:	
 		s.send(chr(0x0f & int(m0)))
 		s.send(chr((0x0f & int(m1)) | 0x10))
@@ -101,16 +93,17 @@ def send_mouse():
 
 def send_joystick():
 	if not tankdrive:
-		coord = rotate_coord((joystick.get_axis(JOY_AXIS_A), 
-				joystick.get_axis(JOY_AXIS_B)))
+		coord = rotate_coord((joystick.get_axis(JOY_AXIS_A) * JCAL[0], 
+				joystick.get_axis(JOY_AXIS_B) * JCAL[1]))
 	else:
 		coord = [joystick.get_axis(JOY_AXIS_A) + 1.0, 
 			joystick.get_axis(JOY_AXIS_B) + 1.0]
 	print(coord)
 	print(coord)
-	motor_0_val = int(7 * float(coord[0]))
-	motor_1_val = int(7 * float(coord[1]))
+	motor_0_val = (18 * float(coord[0]))
+	motor_1_val = (18 * float(coord[1]))
 	set_motors(motor_0_val, motor_1_val)
+
 	pygame.draw.line(screen, (255, 0, 0), 
 	screen_center, (((joystick.get_axis(JOY_AXIS_A)) + 1.0 ) * screen_center[0],
                          ((joystick.get_axis(JOY_AXIS_B)) + 1.0 ) * screen_center[1]))
