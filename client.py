@@ -72,6 +72,23 @@ def draw_motor_bars(m0, m1):
 		(screen_center[0], screen_center[1], screen_center[0],
 		(B1M * m1 / 7.0) * screen_center[1]))
 
+def set_motors_f(m0, m1):
+	#values less than 7 are reverse
+	#value clamping to prevent overflows
+	print(m0)
+	print(m1)
+	if m0 > 1.0:
+		m0 = 1.0
+	if m0 < -1.0:
+		m0 = -1.0
+	if m1 > 1.0:
+		m1 = 1.0
+	if m1 < -1.0:
+		m1 = -1.0
+	print(m0)
+	print(m1)
+	set_motors(m0 * 7, m1 * 7)
+	
 def set_motors(m0, m1):
 	print("m0: " + str(int(m0) & 0x0f) + " m1: " + str(int(m1) & 0x0f))
 	try:	
@@ -87,9 +104,7 @@ def send_mouse():
 
 	if not tankdrive:
 		coord = rotate_coord(coord)
-	motor_0_val = (18 * float(coord[0])/screen.get_size()[0])
-	motor_1_val = (18 * float(coord[1])/screen.get_size()[1])
-	set_motors(motor_0_val, motor_1_val)
+	set_motors_f(1.5 * coord[0]/screen.get_width(), 1.5 * coord[1]/screen.get_height())
 
 def send_joystick():
 	if not tankdrive:
