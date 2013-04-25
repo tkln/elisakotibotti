@@ -7,7 +7,7 @@ import signal
 import sys
 
 SERVER_PORT = 1337
-PWM_RATE = 100.0
+PWM_RATE = 300.0
 
 class Motor:
 	speed = 0
