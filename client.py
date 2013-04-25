@@ -13,12 +13,11 @@ SCREEN_WIDTH = 200
 SCREEN_HEIGHT = 200
 
 #used for mouse scaling and mirroring
-MXM = -1
-MYM = 1
 MCAL = [-1, 1]
 
 #bar graph scalers
 B0M = 1
+#the other motor is reversed
 B1M = -1
 
 JOY_ID = 0
@@ -32,25 +31,6 @@ COORD_ANGL = pi * 5 / 4
 
 #motor scalers
 MSCALE = [7, 7]
-
-pygame.init()
-pygame.joystick.init()
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-screen_center = [screen.get_size()[0] / 2, screen.get_size()[1] / 2]
-
-try:
-	joystick = pygame.joystick.Joystick(JOY_ID)
-	joystick.init()
-except pygame.error:
-	print("No joystick found.")
-
-print("Connecting to the server: " + SERVER_IP + ":" + str(SERVER_PORT))
-
-try:
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.connect((SERVER_IP, SERVER_PORT))
-except socket.error:
-	print("Unable to connect to the server ")
 
 def tuple_mul(a, b):
 	return (a[0] * b[0], a[1] * b[1])
@@ -127,13 +107,32 @@ def send_joystick():
 
 def motors_stop():
 	transmit_motors(7, 7)
+#Inits
+pygame.init()
+pygame.joystick.init()
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen_center = [screen.get_size()[0] / 2, screen.get_size()[1] / 2]
+
+try:
+	joystick = pygame.joystick.Joystick(JOY_ID)
+	joystick.init()
+except pygame.error:
+	print("No joystick found.")
+
+print("Connecting to the server: " + SERVER_IP + ":" + str(SERVER_PORT))
+
+try:
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.connect((SERVER_IP, SERVER_PORT))
+except socket.error:
+	print("Unable to connect to the server ")
+
 
 tankdrive = False
 running = True
 motors_stop()
 screen.fill((0xff, 0xff, 0xff))
 while running:
-	
 	event = pygame.event.poll()
 	if event.type == pygame.QUIT:
 		motors_stop()
