@@ -26,7 +26,7 @@ JOY_AXIS_A = 3
 JOY_AXIS_B = 4
 JOY_AXIS_TA = 1
 JOY_AXIS_TB = 4
-JCAL = [1, 1]
+JCAL = [1.5, 1.5]
 
 COORD_ANGL = pi * 5 / 4 
 
@@ -73,12 +73,11 @@ def draw_motor_bars(m0, m1):
 		(screen_center[0], screen_center[1], screen_center[0],
 		(B1M * m1 / 7.0) * screen_center[1]))
 
-def set_motors_f(m0, m1):
+def set_motors(m0, m1):
 	#values less than 7 are reverse
 	#value clamping to prevent overflows
 	print(m0)
 	print(m1)
-	print(int(sys.float_info.epsilon * 3))
 	if m0 > 1.0:
 		m0 = .99
 	if m0 < -1.0:
@@ -106,7 +105,7 @@ def send_mouse():
 
 	if not tankdrive:
 		coord = rotate_coord(coord)
-	set_motors_f(1.5 * coord[0]/screen.get_width(), 1.5 * coord[1]/screen.get_height())
+	set_motors(1.5 * coord[0]/screen.get_width(), 1.5 * coord[1]/screen.get_height())
 
 def send_joystick():
 	if not tankdrive:
@@ -119,8 +118,8 @@ def send_joystick():
 	print(coord)
 	motor_0_val = (18 * float(coord[0]))
 	motor_1_val = (18 * float(coord[1]))
-	transmit_motors(motor_0_val, motor_1_val)
-
+	#transmit_motors(motor_0_val, motor_1_val)
+	set_motors(coord[0], coord[1])
 	pygame.draw.line(screen, (255, 0, 0), 
 	screen_center, (((joystick.get_axis(JOY_AXIS_A)) + 1.0 ) * screen_center[0],
                          ((joystick.get_axis(JOY_AXIS_B)) + 1.0 ) * screen_center[1]))
