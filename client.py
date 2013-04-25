@@ -32,6 +32,18 @@ COORD_ANGL = pi * 5 / 4
 #motor scalers
 MSCALE = [7, 7]
 
+keymap = { 
+	'u' : (1.0, 1.0),
+	'ul' : (0.5, 1.0),
+	'ur' : (1.0, 0.5),
+	'd' : (-1.0, -1.0),
+	'dl' : (-0.5, -1.0),
+	'dr' : (-1.0, -0.5),
+	'l' : (1.0, -1.0),
+	'r' : (-1.0, 1.0)
+}
+	
+
 def tuple_mul(a, b):
 	return (a[0] * b[0], a[1] * b[1])
 
@@ -104,6 +116,19 @@ def send_joystick():
 	screen_center, (((joystick.get_axis(JOY_AXIS_A)) + 1.0 ) * screen_center[0],
                          ((joystick.get_axis(JOY_AXIS_B)) + 1.0 ) * screen_center[1]))
 
+def send_keys():
+	pressed_keys = pygame.key.get_pressed()
+	print(pressed_keys[pygame.K_LEFT])	
+	key_coords = [0, 0]
+	if pressed_keys[pygame.K_UP]:	
+		key_coords[1] = -1.5
+	elif pressed_keys[pygame.K_DOWN]:
+		key_coords[1] = 1.5
+	if pressed_keys[pygame.K_LEFT]:	
+		key_coords[0] = -1.5
+	elif pressed_keys[pygame.K_RIGHT]:
+		key_coords[0] = 1.5
+	set_motors(rotate_coord(key_coords)[0], rotate_coord(key_coords)[1])
 
 def motors_stop():
 	transmit_motors(7, 7)
@@ -146,7 +171,9 @@ while running:
 		motors_stop()
 	elif event.type == pygame.JOYAXISMOTION:
 		send_joystick()
-
+	elif event.type == pygame.KEYUP or event.type == pygame.KEYDOWN:
+		send_keys()	
+	
 	pygame.display.flip()
 	time.sleep(0.02)
 s.close()
