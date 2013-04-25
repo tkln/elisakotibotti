@@ -78,6 +78,10 @@ def set_motors(m0, m1):
 		m1 = 0.99
 	if m1 < -1.0:
 		m1 = -0.99
+	if abs(m0) < 0.1:
+		m0 = 1
+	if abs(m1) < 0.1:
+		m1 = 1
 	print(m0)
 	print(m1)
 	transmit_motors(m0 * 7, m1 * 7)
