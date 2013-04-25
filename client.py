@@ -2,10 +2,8 @@
 import socket
 import pygame
 import time
-import sys
 from math import sin, cos, pi
 
-#SERVER_IP = '192.168.100.1'
 SERVER_IP = '192.168.1.100'
 SERVER_PORT = 1337
 
@@ -31,18 +29,6 @@ COORD_ANGL = pi * 5 / 4
 
 #motor scalers
 MSCALE = [7, 7]
-
-keymap = { 
-	'u' : (1.0, 1.0),
-	'ul' : (0.5, 1.0),
-	'ur' : (1.0, 0.5),
-	'd' : (-1.0, -1.0),
-	'dl' : (-0.5, -1.0),
-	'dr' : (-1.0, -0.5),
-	'l' : (1.0, -1.0),
-	'r' : (-1.0, 1.0)
-}
-	
 
 def tuple_mul(a, b):
 	return (a[0] * b[0], a[1] * b[1])
@@ -101,7 +87,8 @@ def send_mouse():
 
 	if not tankdrive:
 		coord = rotate_coord(coord)
-	set_motors(1.5 * coord[0]/screen.get_width(), 1.5 * coord[1]/screen.get_height())
+	set_motors(1.5 * coord[0]/screen.get_width(), 
+		1.5 * coord[1]/screen.get_height())
 
 def send_joystick():
 	if not tankdrive:
@@ -114,11 +101,11 @@ def send_joystick():
 	print(coord)
 	motor_0_val = (18 * float(coord[0]))
 	motor_1_val = (18 * float(coord[1]))
-	#transmit_motors(motor_0_val, motor_1_val)
 	set_motors(coord[0], coord[1])
 	pygame.draw.line(screen, (255, 0, 0), 
-	screen_center, (((joystick.get_axis(JOY_AXIS_A)) + 1.0 ) * screen_center[0],
-                         ((joystick.get_axis(JOY_AXIS_B)) + 1.0 ) * screen_center[1]))
+		screen_center, 
+		(((joystick.get_axis(JOY_AXIS_A)) + 1.0 ) * screen_center[0],
+		((joystick.get_axis(JOY_AXIS_B)) + 1.0 ) * screen_center[1]))
 
 def send_keys():
 	pressed_keys = pygame.key.get_pressed()
@@ -142,6 +129,7 @@ pygame.joystick.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 screen_center = [screen.get_size()[0] / 2, screen.get_size()[1] / 2]
 
+#Let's check if there's a joystick plugged in
 try:
 	joystick = pygame.joystick.Joystick(JOY_ID)
 	joystick.init()
@@ -150,17 +138,19 @@ except pygame.error:
 
 print("Connecting to the server: " + SERVER_IP + ":" + str(SERVER_PORT))
 
+#Connect to the server
 try:
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect((SERVER_IP, SERVER_PORT))
 except socket.error:
 	print("Unable to connect to the server ")
 
-
+#Tankdrive in this case means disabling the coordinate transformation
 tankdrive = False
 running = True
 motors_stop()
 screen.fill((0xff, 0xff, 0xff))
+
 while running:
 	event = pygame.event.poll()
 	if event.type == pygame.QUIT:
@@ -177,7 +167,6 @@ while running:
 		send_joystick()
 	elif event.type == pygame.KEYUP or event.type == pygame.KEYDOWN:
 		send_keys()	
-	
 	pygame.display.flip()
 	time.sleep(0.02)
 s.close()
